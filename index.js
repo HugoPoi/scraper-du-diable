@@ -1,5 +1,6 @@
 var cheerio = require('cheerio'),
 request = require('request'),
+iconv = require('iconv'),
 url = require('url'),
 _ = require('underscore'),
 async = require('async'),
@@ -35,8 +36,10 @@ function getProductsPages(urlCategorieList, callback){
 
 function getProductInfo(productUrl, callback){
   var productInfos = {};
-  request({ url: productUrl }, function (error, response, body) {
+  request({ url: productUrl, encoding: null }, function (error, response, body) {
     if (!error && response.statusCode === 200) {
+      var ic = new iconv.Iconv('ISO-8859-1', 'UTF-8');
+      body = ic.convert(body).toString();
       var $ = cheerio.load(body);
       productInfos.productName = $('#titre_produit').text().trim();
       productInfos.productPrice = $('.prixFiche').text().trim();
